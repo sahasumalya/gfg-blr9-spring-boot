@@ -12,3 +12,6 @@ public class Record {
     @NonNull
     public String phone;
 }
+
+// Record record = new Record();
+// sets name email
