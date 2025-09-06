@@ -1,9 +1,14 @@
 package org.example.gfgblr9.controllers;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.example.gfgblr9.annotations.InitSalary;
 import org.example.gfgblr9.annotations.JsonSerializableField;
 import org.example.gfgblr9.models.Employee;
 import org.example.gfgblr9.models.Record;
+import org.example.gfgblr9.services.RedisDriver;
+import org.example.gfgblr9.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,8 +18,31 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+@Slf4j
 @RestController("/v1")
 public class HealthController {
+
+    public HealthController() {
+       log.info("HealthController getting initiated");
+    }
+
+
+
+    /*@Autowired*/
+    private UserService userService; // field injection
+
+    @Autowired
+    private RedisDriver redisDriver;
+
+    @Autowired
+    public HealthController(UserService userService) {
+        this.userService = userService;  // constructor injection // required dependecies
+    }
+
+   /* @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService; // setter injection // optional dependencies
+    }*/
 
     @RequestMapping(name="get",path = "/healthCheck")
     public String checkHealth() {
