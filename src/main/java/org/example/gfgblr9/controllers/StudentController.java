@@ -29,6 +29,12 @@ public class StudentController {
 
     }
 
+    @GetMapping("/student/contact")
+    public StudentInfo getStudent(@RequestParam(name="id") Long contactId) {
+        return studentService.findStudentOfContactById(contactId);
+
+    }
+
     @GetMapping("/students")
     public List<Student> getStudents(@RequestParam(name="name") String firstName) {
         return studentService.findAllStudentsByFirstName(firstName);
