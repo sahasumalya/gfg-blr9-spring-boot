@@ -25,12 +25,12 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<StudentAddress> addresses;
 
-    @ManyToMany
+    /*@ManyToMany
     @JoinTable(
             name="course_students",
             joinColumns =
                     @JoinColumn(name = "id", referencedColumnName = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "id", referencedColumnName = "course_id")
-    )
-    private List<Course> likedCourses;
+    )*/
+    //private List<Course> likedCourses;
 }
