@@ -6,9 +6,13 @@ import org.example.gfgblr9.models.AddAssetRequest;
 import org.example.gfgblr9.models.AssetResponse;
 import org.example.gfgblr9.models.LibraryAsset;
 import org.example.gfgblr9.models.LibraryUser;
+import org.example.gfgblr9.pubsub.RedisMessagePublisher;
 import org.example.gfgblr9.repositories.LibraryAssetRepository;
 import org.example.gfgblr9.repositories.LibraryUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -20,11 +24,18 @@ import java.util.UUID;
 public class LibraryUserService {
     private LibraryUserRepository libraryUserRepository;
     private LibraryAssetRepository libraryAssetRepository;
+    private RedisCacheManager redisCacheManager;
+    private RedisTemplate<String, String> stringRedisTemplate2;
+    private RedisMessagePublisher publisher;
 
     @Autowired
-    public LibraryUserService(LibraryUserRepository libraryUserRepository, LibraryAssetRepository libraryAssetRepository) {
+    public LibraryUserService(LibraryUserRepository libraryUserRepository, LibraryAssetRepository libraryAssetRepository, RedisCacheManager redisCacheManager, RedisTemplate<String, String> stringRedisTemplate2, RedisMessagePublisher publisher) {
         this.libraryUserRepository = libraryUserRepository;
         this.libraryAssetRepository = libraryAssetRepository;
+        this.redisCacheManager = redisCacheManager;
+        this.stringRedisTemplate2 = stringRedisTemplate2;
+        this.publisher = publisher;
+
     }
 
     public LibraryUser register(String username, String password, LibraryUserRoles role) {
@@ -45,6 +56,22 @@ public class LibraryUserService {
     public boolean login(String username, String password) {
         LibraryUser libraryUser = libraryUserRepository.findByUsernameAndPassword(username, password);
         return libraryUser != null;
+    }
+
+    public String getPassword(String username) {
+        //Cache cache = redisCacheManager.getCache(username);
+        //if (cache.get("password") != null) {
+            //return cache.get("password").get().toString();
+       // }
+        if (this.stringRedisTemplate2.hasKey(username)) {
+            publisher.publish("cache hit for username: " + username);
+            return this.stringRedisTemplate2.opsForValue().get(username);
+        }
+        publisher.publish("cache miss for username: " + username);
+        LibraryUser libraryUser = libraryUserRepository.findByUsername(username);
+        stringRedisTemplate2.opsForValue().set(username, libraryUser.getPassword());
+        //cache.put("password", libraryUser != null ? libraryUser.getPassword() : "");
+        return String.valueOf(libraryUser != null ? libraryUser.getPassword() : "");
     }
 
     public LibraryAsset addAsset(AddAssetRequest addAssetRequest) {

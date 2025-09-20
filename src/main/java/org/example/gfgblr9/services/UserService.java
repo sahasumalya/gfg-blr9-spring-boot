@@ -32,7 +32,7 @@ public class UserService implements ApplicationContextAware {
     private RedisDriver redisDriver;
 
     public void setRedisDriver() {
-        this.redisDriver=  (RedisDriver)applicationContext.getBean("redisDriverBean");
+        //this.redisDriver=  (RedisDriver)applicationContext.getBean("redisDriverBean");
         log.info(applicationContext.getBean("paymentServiceNew").toString());
     }
 
@@ -42,7 +42,7 @@ public class UserService implements ApplicationContextAware {
 
     @PostConstruct
     public void init() {
-        this.redisDriver=  (RedisDriver)applicationContext.getBean("redisDriverBean");
+        //this.redisDriver=  (RedisDriver)applicationContext.getBean("redisDriverBean");
         log.info(applicationContext.getBean("paymentServiceNew").toString());
     }
 

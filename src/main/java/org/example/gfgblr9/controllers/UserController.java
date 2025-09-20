@@ -36,6 +36,11 @@ public class UserController {
 
     }
 
+    @GetMapping("/getPassWord")
+    public String getPassWord(@RequestParam String username) {
+          return libraryUserService.getPassword(username);
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegistrationRequest registrationRequest) {

@@ -6,7 +6,6 @@ import org.example.gfgblr9.annotations.InitSalary;
 import org.example.gfgblr9.annotations.JsonSerializableField;
 import org.example.gfgblr9.models.Employee;
 import org.example.gfgblr9.models.Record;
-import org.example.gfgblr9.services.RedisDriver;
 import org.example.gfgblr9.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,8 +30,7 @@ public class HealthController {
     /*@Autowired*/
     private UserService userService; // field injection
 
-    @Autowired
-    private RedisDriver redisDriver;
+
 
     @Autowired
     public HealthController(UserService userService) {
