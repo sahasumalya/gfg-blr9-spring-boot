@@ -25,7 +25,8 @@ public class UserController {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    @PostMapping("/login")
+
+   /* @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         if (this.libraryUserService.login(loginRequest.getUsername(), loginRequest.getPassword())) {
             return ResponseEntity.ok("Login successful");
@@ -34,7 +35,7 @@ public class UserController {
 
 
 
-    }
+    }*/
 
     @GetMapping("/getPassWord")
     public String getPassWord(@RequestParam String username) {

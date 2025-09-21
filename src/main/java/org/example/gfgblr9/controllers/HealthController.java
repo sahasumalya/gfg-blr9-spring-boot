@@ -42,6 +42,11 @@ public class HealthController {
         this.userService = userService; // setter injection // optional dependencies
     }*/
 
+    @GetMapping("/")
+    public String home() {
+        return "Hello World";
+    }
+
     @RequestMapping(name="get",path = "/healthCheck")
     public String checkHealth() {
         return "OK";
