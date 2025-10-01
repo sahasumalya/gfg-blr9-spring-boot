@@ -3,8 +3,11 @@ package org.example.gfgblr9.config;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.gfgblr9.filters.JwtRequestFilter;
 import org.example.gfgblr9.repositories.LibraryUserRepository;
 import org.example.gfgblr9.services.CustomUserDetailsService;
+import org.example.gfgblr9.services.JwtUserDetailsService;
+import org.example.gfgblr9.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -92,7 +95,7 @@ public class SecurityConfiguration {
         return http.build();
     }*/
     //Form based login
-    @Bean
+    /*@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
@@ -106,10 +109,48 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(new CustomUserDetailsService(libraryUserRepository))
-                .formLogin(withDefaults()
+                .httpBasic(withDefaults()
 
                 );
         //UsernamePasswordAuthenticationFilter
+        return http.build();
+    }*/
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf()
+                .disable()
+                //.httpBasic(withDefaults())
+                /*.sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                                .invalidSessionUrl("/invalidSession")
+                                .invalidSessionStrategy(invalidSessionStrategy())
+                                .maximumSessions(1)
+                                .maxSessionsPreventsLogin(true)
+                )*/
+                /*.logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/session-expired")
+                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "token")
+                        .clearAuthentication(true)
+                )*/
+
+                .userDetailsService(new JwtUserDetailsService("LIBRARIAN"))
+                .authorizeHttpRequests(auth -> auth
+                        // THIS IS THE FIX: Allow public access to the login page
+                        .requestMatchers("/login").permitAll()
+                        // Also permit access to any CSS or JS files needed by the login page
+                        .requestMatchers("/css/**", "/js/**","/error/**").permitAll()
+                        .requestMatchers("/v1/addAsset").hasRole("ADMIN")
+                        // All other requests must be authenticated
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new JwtRequestFilter(new JwtUtil()), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                // .addFilterBefore(new CustomSessionValidationFilter(), SessionManagementFilter.class)
+
         return http.build();
     }
 
@@ -170,6 +211,28 @@ public class SecurityConfiguration {
                 .authenticated();
         return http.build();
     }*/
+
+    //jwt
+    /*
+     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
+            .authorizeHttpRequests(auth -> auth
+                // Allow access to the authentication endpoint
+                .requestMatchers("/api/auth/**").permitAll()
+                // All other requests must be authenticated
+                .anyRequest().authenticated()
+            )
+            // Tell Spring Security not to create or use sessions
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider)
+            // Add our custom JWT filter before the standard username/password filter
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+     */
 
 
     /*@Bean

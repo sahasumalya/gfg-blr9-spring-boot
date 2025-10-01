@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.gfgblr9.models.*;
 import org.example.gfgblr9.services.LibraryUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,16 +29,18 @@ public class UserController {
     }
 
 
-   /* @PostMapping("/login")
+   @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        if (this.libraryUserService.login(loginRequest.getUsername(), loginRequest.getPassword())) {
-            return ResponseEntity.ok("Login successful");
+        String token = this.libraryUserService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        if (token == null) {
+            return ResponseEntity.badRequest().body("Invalid username or password");
         }
-        return ResponseEntity.badRequest().body("Invalid username or password");
-
-
-
-    }*/
+       HttpHeaders headers = new HttpHeaders();
+       // token="+token
+       headers.add("Set-Cookie","token=" + token+ "; Max-Age=604800; Path=/; Secure; HttpOnly;");
+       ResponseEntity<String> responseEntity = ResponseEntity.status(HttpStatus.OK).headers(headers).body("Login Success");
+       return responseEntity;
+    }
 
     @GetMapping("/getPassWord")
     public String getPassWord(@RequestParam String username) {

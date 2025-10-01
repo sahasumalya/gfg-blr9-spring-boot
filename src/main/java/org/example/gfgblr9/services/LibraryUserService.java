@@ -9,6 +9,7 @@ import org.example.gfgblr9.models.LibraryUser;
 import org.example.gfgblr9.pubsub.RedisMessagePublisher;
 import org.example.gfgblr9.repositories.LibraryAssetRepository;
 import org.example.gfgblr9.repositories.LibraryUserRepository;
+import org.example.gfgblr9.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -53,9 +54,13 @@ public class LibraryUserService {
     }
 
 
-    public boolean login(String username, String password) {
+    public String login(String username, String password) {
         LibraryUser libraryUser = libraryUserRepository.findByUsernameAndPassword(username, password);
-        return libraryUser != null;
+        if (libraryUser == null) {
+            return null;
+        }
+        JwtUtil jwtUtil = new JwtUtil();
+        return jwtUtil.generateToken(libraryUser.getUsername(), libraryUser.getRole().toString());
     }
 
     public String getPassword(String username) {
