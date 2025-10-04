@@ -12,6 +12,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+//import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+//import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,6 +50,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             role = jwtUtil.extractRole(authorizationToken);
         }
 
+        //OAuth2AuthorizationRequestResolver
+        //OAuth2AuthorizedClient
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             JwtUserDetailsService userDetailsService = new JwtUserDetailsService(role);

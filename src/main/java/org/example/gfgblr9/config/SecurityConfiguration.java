@@ -115,29 +115,39 @@ public class SecurityConfiguration {
         //UsernamePasswordAuthenticationFilter
         return http.build();
     }*/
+    private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+        SimpleUrlLogoutSuccessHandler successHandler = new SimpleUrlLogoutSuccessHandler();
+        successHandler.setTargetUrlParameter("http://localhost:8081/session-expired");
+        //successHandler.setDefaultTargetUrl("http://localhost:3000/session-expired");
+        SecurityContextHolder.clearContext();// Replace with your redirect URL
 
+        return successHandler;
+    }
+    //oath authentication
+   /* public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf()
+                .disable()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/", "/error", "/webjars/**", "/session-expired", "/login/oauth2/code/github").permitAll() // Public pages
+                        .anyRequest().authenticated() // All other pages require authentication
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .clearAuthentication(true)
+                )
+                .oauth2Login();
+        return http.build();
+    }*/
+   // jwt authentication
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable()
-                //.httpBasic(withDefaults())
-                /*.sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                                .invalidSessionUrl("/invalidSession")
-                                .invalidSessionStrategy(invalidSessionStrategy())
-                                .maximumSessions(1)
-                                .maxSessionsPreventsLogin(true)
-                )*/
-                /*.logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/session-expired")
-                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "token")
-                        .clearAuthentication(true)
-                )*/
-
-                .userDetailsService(new JwtUserDetailsService("LIBRARIAN"))
+                //.userDetailsService(new JwtUserDetailsService("LIBRARIAN"))
                 .authorizeHttpRequests(auth -> auth
                         // THIS IS THE FIX: Allow public access to the login page
                         .requestMatchers("/login").permitAll()
@@ -147,11 +157,22 @@ public class SecurityConfiguration {
                         // All other requests must be authenticated
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                                .invalidSessionUrl("/invalidSession")
+                                .invalidSessionStrategy(invalidSessionStrategy())
+                                .maximumSessions(1)
+                                .maxSessionsPreventsLogin(true)
+                )
                 .addFilterBefore(new JwtRequestFilter(new JwtUtil()), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 // .addFilterBefore(new CustomSessionValidationFilter(), SessionManagementFilter.class)
 
         return http.build();
+    }
+    @Bean
+    public InvalidSessionStrategy invalidSessionStrategy() {
+        return new SimpleRedirectInvalidSessionStrategy("/session-expired");
     }
 
    /* @Bean

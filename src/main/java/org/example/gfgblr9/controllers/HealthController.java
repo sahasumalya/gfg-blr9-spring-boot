@@ -44,6 +44,7 @@ public class HealthController {
 
     @GetMapping("/")
     public String home() {
+        log.info("HealthController getting initiated");
         return "Hello World";
     }
 
