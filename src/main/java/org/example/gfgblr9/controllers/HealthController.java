@@ -2,11 +2,13 @@ package org.example.gfgblr9.controllers;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.core5.http.ParseException;
 import org.example.gfgblr9.annotations.InitSalary;
 import org.example.gfgblr9.annotations.JsonSerializableField;
 import org.example.gfgblr9.models.Employee;
 import org.example.gfgblr9.models.Record;
 import org.example.gfgblr9.services.UserService;
+import org.example.gfgblr9.services.WeatherClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -29,12 +32,14 @@ public class HealthController {
 
     /*@Autowired*/
     private UserService userService; // field injection
+    private WeatherClient weatherClient;
 
 
 
     @Autowired
-    public HealthController(UserService userService) {
+    public HealthController(UserService userService, WeatherClient weatherClient) {
         this.userService = userService;  // constructor injection // required dependecies
+        this.weatherClient = weatherClient;
     }
 
    /* @Autowired
@@ -46,6 +51,11 @@ public class HealthController {
     public String home() {
         log.info("HealthController getting initiated");
         return "Hello World";
+    }
+
+    @GetMapping("/weather")
+    public String home(@RequestParam String city) throws IOException, ParseException {
+        return weatherClient.getWeather(city);
     }
 
     @RequestMapping(name="get",path = "/healthCheck")

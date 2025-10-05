@@ -152,7 +152,7 @@ public class SecurityConfiguration {
                         // THIS IS THE FIX: Allow public access to the login page
                         .requestMatchers("/login").permitAll()
                         // Also permit access to any CSS or JS files needed by the login page
-                        .requestMatchers("/css/**", "/js/**","/error/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**","/error/**","/","/weather").permitAll()
                         .requestMatchers("/v1/addAsset").hasRole("ADMIN")
                         // All other requests must be authenticated
                         .anyRequest().authenticated()
