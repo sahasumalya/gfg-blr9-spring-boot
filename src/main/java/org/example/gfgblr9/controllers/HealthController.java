@@ -7,6 +7,7 @@ import org.example.gfgblr9.annotations.InitSalary;
 import org.example.gfgblr9.annotations.JsonSerializableField;
 import org.example.gfgblr9.models.Employee;
 import org.example.gfgblr9.models.Record;
+import org.example.gfgblr9.pubsub.ProducerService;
 import org.example.gfgblr9.services.UserService;
 import org.example.gfgblr9.services.WeatherClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +34,15 @@ public class HealthController {
     /*@Autowired*/
     private UserService userService; // field injection
     private WeatherClient weatherClient;
+    private ProducerService producerService;
 
 
 
     @Autowired
-    public HealthController(UserService userService, WeatherClient weatherClient) {
+    public HealthController(UserService userService, WeatherClient weatherClient, ProducerService producerService) {
         this.userService = userService;  // constructor injection // required dependecies
         this.weatherClient = weatherClient;
+        this.producerService = producerService;
     }
 
    /* @Autowired
@@ -55,6 +58,7 @@ public class HealthController {
 
     @GetMapping("/weather")
     public String home(@RequestParam String city) throws IOException, ParseException {
+        producerService.sendMessage("Hello World`");
         return weatherClient.getWeather(city);
     }
 
