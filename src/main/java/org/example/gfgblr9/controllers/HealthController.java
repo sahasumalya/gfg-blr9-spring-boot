@@ -58,7 +58,7 @@ public class HealthController {
 
     @GetMapping("/weather")
     public String home(@RequestParam String city) throws IOException, ParseException {
-        producerService.sendMessage("Hello World`");
+        //producerService.sendMessage("Hello World`");
         return weatherClient.getWeather(city);
     }
 

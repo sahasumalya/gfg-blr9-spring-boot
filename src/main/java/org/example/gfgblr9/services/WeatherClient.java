@@ -1,5 +1,7 @@
 package org.example.gfgblr9.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -19,10 +21,14 @@ import java.net.http.HttpRequest;
 public class WeatherClient {
 
     private HttpClient httpClient;
+    private int counter;
     public WeatherClient() {
         this.httpClient = HttpClients.createDefault();
+        this.counter = 7;
     }
 
+    @Retry(name = "default"/*, fallbackMethod = "fallbackWebAPI"*/)
+    @CircuitBreaker(name = "webClientCircuitBreaker", fallbackMethod = "fallbackWebAPICircuitBreaker")
     public String getWeather(String city) throws IOException, ParseException {
         HttpGet httpGet = new HttpGet("https://api.weatherapi.com/v1/current.json?key=4d13d7ea7e6f4f789ae163958251706&"+"q="+city);
         /*HttpPost httpPost = new HttpPost("dfdf");
@@ -31,8 +37,20 @@ public class WeatherClient {
         httpPost.setHeader("Autho");*
         // RestTemplate, WebClient
          */
-        CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
-        return EntityUtils.toString(response.getEntity());
+        //counter--;
 
+        throw new RuntimeException("test exception");
+
+        //CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
+        //return EntityUtils.toString(response.getEntity());
+
+
+    }
+
+    public String fallbackWebAPI(String city, Exception e) {
+        return "weather client falls after max retries:- Exception-"+e.toString();
+    }
+    public String fallbackWebAPICircuitBreaker(String city, Exception e) {
+        return "fallbackWebAPICircuitBreaker";
     }
 }
