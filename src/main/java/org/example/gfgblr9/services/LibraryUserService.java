@@ -12,6 +12,7 @@ import org.example.gfgblr9.repositories.LibraryUserRepository;
 import org.example.gfgblr9.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -40,17 +41,22 @@ public class LibraryUserService {
     }
 
     public LibraryUser register(String username, String password, LibraryUserRoles role) {
-        if (libraryUserRepository.findByUsername(username) != null) {
-            return null;
+        try{
+
+            if (libraryUserRepository.findByUsername(username) != null) {
+                return null;
+            }
+            LibraryUser libraryUser = new LibraryUser();
+            libraryUser.setUsername(username);
+            libraryUser.setPassword(password);
+            libraryUser.setRole(role);
+            libraryUser.setNickname(UUID.randomUUID().toString());
+            libraryUser.setCreated(new Timestamp(System.currentTimeMillis()));
+            libraryUserRepository.save(libraryUser);
+            return libraryUser;
+        } catch (DataAccessException dataAccessException) {
+            throw new RuntimeException("database_error", dataAccessException);
         }
-        LibraryUser libraryUser = new LibraryUser();
-        libraryUser.setUsername(username);
-        libraryUser.setPassword(password);
-        libraryUser.setRole(role);
-        libraryUser.setNickname(UUID.randomUUID().toString());
-        libraryUser.setCreated(new Timestamp(System.currentTimeMillis()));
-        libraryUserRepository.save(libraryUser);
-        return libraryUser;
     }
 
 
